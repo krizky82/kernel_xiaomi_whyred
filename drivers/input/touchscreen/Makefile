@@ -1,4 +1,3 @@
-#
 # Makefile for the touchscreen drivers.
 #
 
@@ -96,6 +95,7 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)	+= zylonite-wm97xx.o
 obj-$(CONFIG_TOUCHSCREEN_W90X900)	+= w90p910_ts.o
 obj-$(CONFIG_TOUCHSCREEN_SX8654)	+= sx8654.o
 obj-$(CONFIG_TOUCHSCREEN_TPS6507X)	+= tps6507x-ts.o
+
 obj-$(CONFIG_TOUCHSCREEN_ZFORCE)	+= zforce_ts.o
 obj-$(CONFIG_TOUCHSCREEN_COLIBRI_VF50)	+= colibri-vf50-ts.o
 obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
@@ -104,3 +104,26 @@ obj-y	+= lct_tp_fm_info.o
 obj-y	+= lct_ctp_selftest.o
 obj-y	+= lct_ctp_upgrade.o
 obj-y	+= lct_if_ctp_upgrade.o
+
+obj-$(CONFIG_TOUCHSCREEN_MSM_LEGACY)		+= msm_touch.o
+obj-$(CONFIG_TOUCHSCREEN_CY8C_TS)	+= cy8c_ts.o
+obj-$(CONFIG_TOUCHSCREEN_CYTTSP_I2C_QC)       += cyttsp-i2c-qc.o
+obj-$(CONFIG_TOUCHSCREEN_FT5X06)	+= ft5x06_ts.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_I2C_RMI4)		+= synaptics_i2c_rmi4.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_RMI4_DEV)	+= synaptics_rmi_dev.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE) 	+= synaptics_fw_update.o
+obj-$(CONFIG_TOUCHSCREEN_APS_TS) 	+= aps_ts.o
+obj-$(CONFIG_TOUCHSCREEN_GT9XX)		+= gt9xx/
+obj-$(CONFIG_TOUCHSCREEN_MELFAS100_TS) += melfas100_ts.o
+obj-$(CONFIG_TOUCHSCREEN_MELFAS100_TS) += melfas_instr.o
+obj-$(CONFIG_TOUCHSCREEN_ATMXT)		+= atmxt.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_I2C) += synaptics_dsx_i2c.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_RMI_DEV) += synaptics_dsx_rmi_dev.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_TEST_REPORTING) += synaptics_dsx_test_reporting.o
+obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_DSX_FW_UPDATE_MMI) += synaptics_dsx_fw_update.o
+# for sweep2wake, leave 1st to avoid merge issues at the end of the file
+obj-$(CONFIG_TOUCHSCREEN_SWEEP2WAKE) += sweep2wake.o
+# for doubletap2wake, leave 1st to avoid merge issues at the end of the file
+obj-$(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE) += doubletap2wake.o
+obj-$(CONFIG_TOUCHSCREEN_TAP2UNLOCK) += tap2unlock.o
+
