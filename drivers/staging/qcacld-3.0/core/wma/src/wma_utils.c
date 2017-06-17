@@ -5807,6 +5807,7 @@ void wma_peer_debug_log(uint8_t vdev_id, uint8_t op,
  *
  * Return: printable string for the operation
  */
+#ifdef WLAN_DEBUG
 static char *wma_peer_debug_string(uint32_t op)
 {
 	switch (op) {
@@ -5846,7 +5847,7 @@ static char *wma_peer_debug_string(uint32_t op)
 		return "unknown";
 	}
 }
-
+#endif
 /**
  * wma_peer_debug_dump() - Print the peer debug log records
  * print all the valid debug records in the order of timestamp
