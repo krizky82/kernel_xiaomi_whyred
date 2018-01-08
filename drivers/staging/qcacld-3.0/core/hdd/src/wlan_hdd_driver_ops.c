@@ -252,6 +252,7 @@ int hdd_hif_open(struct device *dev, void *bdev, const struct hif_bus_id *bid,
 		ret = qdf_status_to_os_return(status);
 		goto err_hif_close;
 	} else {
+		cds_set_target_ready(true);
 		ret = hdd_napi_create();
 		hdd_debug("hdd_napi_create returned: %d", ret);
 		if (ret == 0)
@@ -1325,9 +1326,6 @@ static void wlan_hdd_pld_uevent(struct device *dev,
 		break;
 	case PLD_FW_DOWN:
 		hdd_cleanup_on_fw_down();
-		break;
-	case PLD_FW_READY:
-		cds_set_target_ready(true);
 		break;
 	}
 
