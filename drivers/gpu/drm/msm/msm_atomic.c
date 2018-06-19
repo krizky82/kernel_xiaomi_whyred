@@ -16,6 +16,7 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <linux/cpu_input_boost.h>
 #include "msm_drv.h"
 #include "msm_kms.h"
 #include "msm_gem.h"
@@ -661,8 +662,9 @@ int msm_atomic_commit(struct drm_device *dev,
 	/* uninterruptible wait */
 	msm_wait_fence(dev, commit->fence, &timeout, false);
 
-	complete_commit(commit);
+	cpu_input_boost_kick();
 
+	complete_commit(commit);
 	SDE_ATRACE_END("atomic_commit");
 	return 0;
 
