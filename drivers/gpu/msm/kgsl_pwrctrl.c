@@ -36,7 +36,6 @@
 
 #define UPDATE_BUSY_VAL		1000000
 
-
 /* Number of jiffies for a full thermal cycle */
 #define TH_HZ			(HZ/5)
 
@@ -60,18 +59,6 @@ static const char * const clocks[] = {
 	"isense_clk",
 	"rbcpr_clk",
 	"iref_clk"
-
-extern void set_gpu_clk(unsigned int);
-#define INIT_UDELAY		200
-#define MAX_UDELAY		2000
-
-//gboost
-int graphics_boost = 4;
-
-struct clk_pair {
-	const char *name;
-	uint map;
-
 };
 
 static unsigned int ib_votes[KGSL_MAX_BUSLEVELS];
@@ -493,7 +480,6 @@ void kgsl_pwrctrl_set_constraint(struct kgsl_device *device,
 	unsigned int constraint;
 	struct kgsl_pwr_constraint *pwrc_old;
 
-
 	if (device == NULL || pwrc == NULL)
 		return;
 	constraint = _adjust_pwrlevel(&device->pwrctrl,
@@ -521,11 +507,6 @@ void kgsl_pwrctrl_set_constraint(struct kgsl_device *device,
 			pwrc_old->expires = jiffies +
 					device->pwrctrl.interval_timeout;
 	}
-	trace_kgsl_pwrlevel(device, pwr->active_pwrlevel, pwrlevel->gpu_freq);
-
-//gboost
-        graphics_boost = pwr->active_pwrlevel;
-
 }
 EXPORT_SYMBOL(kgsl_pwrctrl_set_constraint);
 
