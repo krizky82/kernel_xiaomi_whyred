@@ -1233,20 +1233,11 @@ config TOUCHSCREEN_IT7260_I2C
 	help
 	  Say Y here if you have a IT7260 Touchscreen Driver
 	  connected to your system.
+
 	  If unsure, say N.
 
 	  To compile this driver as a module, choose M here: the
-	  module will be called it76258_ts_i2c.
-
-config TOUCHSCREEN_TAP2UNLOCK
-	tristate "Tap to unlock for touchscreens"
-	select TOUCHSCREEN_PREVENT_SLEEP
-	default y
-
-config TOUCHSCREEN_POWERSUSPEND
-	tristate "powersuspend for dtw and s2w"
-	default y
-
+	  module will be called it7258_ts_i2c.
 
 config TOUCHSCREEN_ST
 	bool "STMicroelectronics Touchscreen Driver"

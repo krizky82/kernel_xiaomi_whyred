@@ -250,7 +250,6 @@ static int backlight_suspend(struct device *dev)
 
 static int backlight_resume(struct device *dev)
 {
-
 	struct backlight_device *bd = to_backlight_device(dev);
 
 	mutex_lock(&bd->ops_lock);
@@ -261,7 +260,6 @@ static int backlight_resume(struct device *dev)
 	mutex_unlock(&bd->ops_lock);
 
 	return 0;
-
 }
 #endif
 
