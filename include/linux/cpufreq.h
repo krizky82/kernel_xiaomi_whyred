@@ -537,8 +537,8 @@ extern struct cpufreq_governor cpufreq_gov_ondemand;
 extern struct cpufreq_governor cpufreq_gov_conservative;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_conservative)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ZZMOOVE)
-+extern struct cpufreq_governor cpufreq_gov_zzmoove;
-+#define CPUFREQ_DEFAULT_GOVERNOR       (&cpufreq_gov_zzmoove)
+extern struct cpufreq_governor cpufreq_gov_zzmoove;
+#define CPUFREQ_DEFAULT_GOVERNOR       (&cpufreq_gov_zzmoove)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE)
 extern struct cpufreq_governor cpufreq_gov_interactive;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactive)
@@ -560,6 +560,10 @@ extern struct cpufreq_governor cpufreq_gov_impulse;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_TRIPNDROID)
 extern struct cpufreq_governor cpufreq_gov_tripndroid;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_tripndroid)
+
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKNESS)
+extern struct cpufreq_governor cpufreq_gov_darkness;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_darkness)
 
 #endif
 

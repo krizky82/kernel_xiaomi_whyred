@@ -310,7 +310,7 @@ static const struct freq_tbl ftbl_blsp1_qup1_spi_apps_clk_src[] = {
 	F(4800000, P_XO, 4, 0, 0),
 	F(9600000, P_XO, 2, 0, 0),
 	F(15000000, P_GPLL0_OUT_MAIN, 10, 1, 4),
-	F(19200000, P_XO, 1, 0, 0),
+	F(19200000, P_GPLL0_OUT_MAIN, 1, 0, 0),
 	F(25000000, P_GPLL0_OUT_MAIN, 12, 1, 2),
 	F(50000000, P_GPLL0_OUT_MAIN, 12, 0, 0),
 	{ }
@@ -441,10 +441,11 @@ static struct clk_rcg2 blsp1_qup4_spi_apps_clk_src = {
 
 static const struct freq_tbl ftbl_blsp1_uart1_apps_clk_src[] = {
 	F(3686400, P_GPLL0_OUT_MAIN, 1, 96, 15625),
+	F(1920000, P_GPLL0_OUT_MAIN, 1, 96, 15625),
 	F(7372800, P_GPLL0_OUT_MAIN, 1, 192, 15625),
 	F(14745600, P_GPLL0_OUT_MAIN, 1, 384, 15625),
 	F(16000000, P_GPLL0_OUT_MAIN, 5, 2, 15),
-	F(19200000, P_XO, 1, 0, 0),
+	F(19200000, P_GPLL0_OUT_MAIN, 1, 0, 0),
 	F(24000000, P_GPLL0_OUT_MAIN, 5, 1, 5),
 	F(32000000, P_GPLL0_OUT_MAIN, 1, 4, 75),
 	F(40000000, P_GPLL0_OUT_MAIN, 15, 0, 0),
