@@ -2115,7 +2115,6 @@ static int mdss_dsi_disp_wake_thread(void *data)
 
 	/* MDSS_EVENT_PANEL_ON */
 	ctrl_pdata->ctrl_state |= CTRL_STATE_MDP_ACTIVE;
-	pdata->panel_info.esd_rdy = true;
 
 	atomic_set(&ctrl_pdata->needs_wake, 0);
 	complete_all(&ctrl_pdata->wake_comp);
