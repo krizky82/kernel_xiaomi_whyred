@@ -21,6 +21,15 @@
 
 #include "internals.h"
 
+struct irq_desc_list {
+	struct list_head list;
+	struct irq_desc *desc;
+} perf_crit_irqs = {
+	.list = LIST_HEAD_INIT(perf_crit_irqs.list)
+};
+
+static DEFINE_RAW_SPINLOCK(perf_irqs_lock);
+
 #ifdef CONFIG_IRQ_FORCED_THREADING
 __read_mostly bool force_irqthreads;
 
@@ -1114,21 +1123,70 @@ setup_irq_thread(struct irqaction *new, unsigned int irq, bool secondary)
 	return 0;
 }
 
-static bool is_perf_crit_irq(const char *irq_name)
+static void add_desc_to_perf_list(struct irq_desc *desc)
 {
-	static const char *const perf_crit_irqs[] = {
-		"MDSS",
-		"kgsl-3d0",
-		"soc:fp_fpc1020"
-	};
-	int i;
+	struct irq_desc_list *item;
+	unsigned long flags;
 
-	for (i = 0; i < ARRAY_SIZE(perf_crit_irqs); i++) {
-		if (!strcmp(perf_crit_irqs[i], irq_name))
-			return true;
+	item = kmalloc(sizeof(*item), GFP_ATOMIC);
+	if (WARN_ON(!item))
+		return;
+
+	item->desc = desc;
+
+	raw_spin_lock_irqsave(&perf_irqs_lock, flags);
+	list_add(&item->list, &perf_crit_irqs.list);
+	raw_spin_unlock_irqrestore(&perf_irqs_lock, flags);
+}
+
+static void affine_one_perf_thread(struct task_struct *t)
+{
+	t->flags |= PF_PERF_CRITICAL;
+	set_cpus_allowed_ptr(t, cpu_perf_mask);
+}
+
+static void unaffine_one_perf_thread(struct task_struct *t)
+{
+	t->flags &= ~PF_PERF_CRITICAL;
+	set_cpus_allowed_ptr(t, cpu_all_mask);
+}
+
+void unaffine_perf_irqs(void)
+{
+	struct irq_desc_list *data;
+	unsigned long outer_flags;
+
+	raw_spin_lock_irqsave(&perf_irqs_lock, outer_flags);
+	list_for_each_entry(data, &perf_crit_irqs.list, list) {
+		struct irq_desc *desc = data->desc;
+		unsigned long flags;
+
+		raw_spin_lock_irqsave(&desc->lock, flags);
+		irq_set_affinity_locked(&desc->irq_data, cpu_all_mask, true);
+		if (desc->action->thread)
+			unaffine_one_perf_thread(desc->action->thread);
+		raw_spin_unlock_irqrestore(&desc->lock, flags);
 	}
+	raw_spin_unlock_irqrestore(&perf_irqs_lock, outer_flags);
+}
 
-	return false;
+void reaffine_perf_irqs(void)
+{
+	struct irq_desc_list *data;
+	unsigned long outer_flags;
+
+	raw_spin_lock_irqsave(&perf_irqs_lock, outer_flags);
+	list_for_each_entry(data, &perf_crit_irqs.list, list) {
+		struct irq_desc *desc = data->desc;
+		unsigned long flags;
+
+		raw_spin_lock_irqsave(&desc->lock, flags);
+		irq_set_affinity_locked(&desc->irq_data, cpu_perf_mask, true);
+		if (desc->action->thread)
+			affine_one_perf_thread(desc->action->thread);
+		raw_spin_unlock_irqrestore(&desc->lock, flags);
+	}
+	raw_spin_unlock_irqrestore(&perf_irqs_lock, outer_flags);
 }
 
 /*
@@ -1191,6 +1249,9 @@ __setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
 			if (ret)
 				goto out_thread;
 		}
+
+		if (new->flags & IRQF_PERF_CRITICAL)
+			affine_one_perf_thread(new->thread);
 	}
 
 	if (!alloc_cpumask_var(&mask, GFP_KERNEL)) {
@@ -1353,13 +1414,11 @@ __setup_irq(unsigned int irq, struct irq_desc *desc, struct irqaction *new)
 		}
 
 		/* Set default affinity mask once everything is setup */
-		if (is_perf_crit_irq(new->name)) {
-			static const unsigned long big_cluster_cpus = 0xf0;
-			const struct cpumask *m = to_cpumask(&big_cluster_cpus);
-
-			irq_set_affinity_locked(&desc->irq_data, m, true);
-			if (new->thread)
-				kthread_bind_mask(new->thread, m);
+		if (new->flags & IRQF_PERF_CRITICAL) {
+			add_desc_to_perf_list(desc);
+			irqd_set(&desc->irq_data, IRQD_AFFINITY_MANAGED);
+			irq_set_affinity_locked(&desc->irq_data,
+				cpu_perf_mask, true);
 		} else {
 			setup_affinity(desc, mask);
 		}
