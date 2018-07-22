@@ -515,7 +515,7 @@ static struct zram_meta *zram_meta_alloc(char *pool_name, u64 disksize)
 		return NULL;
 
 	num_pages = disksize >> PAGE_SHIFT;
-	meta->table = vzalloc(num_pages * sizeof(*meta->table));
+	meta->table = vzalloc(array_size(num_pages, sizeof(*meta->table)));
 	if (!meta->table) {
 		pr_err("Error allocating zram address table\n");
 		goto out_error;
@@ -1288,7 +1288,7 @@ static int zram_add(void)
 	}
 	strlcpy(zram->compressor, default_compressor, sizeof(zram->compressor));
 	zram->meta = NULL;
-	zram->max_comp_streams = 1;
+	zram->max_comp_streams = CONFIG_NR_CPUS / 2;
 
 	pr_info("Added device: %s\n", zram->disk->disk_name);
 	return device_id;

@@ -527,7 +527,8 @@ exit_disable_node_qos_clk:
 	return ret;
 }
 
-static int msm_bus_enable_node_qos_clk(struct msm_bus_node_device_type *node)
+static int msm_bus_enable_node_qos_clk(struct msm_bus_node_device_type *node,
+					bool *no_defer)
 {
 	struct msm_bus_node_device_type *bus_node = NULL;
 	int i;
@@ -560,6 +561,13 @@ static int msm_bus_enable_node_qos_clk(struct msm_bus_node_device_type *node)
 			goto exit_enable_node_qos_clk;
 		}
 
+	}
+
+	if (!bus_node->num_node_qos_clks) {
+		MSM_BUS_DBG("%s: Num of clks is zero\n", __func__);
+		ret = -EINVAL;
+		*no_defer = true;
+		goto exit_enable_node_qos_clk;
 	}
 
 	for (i = 0; i < bus_node->num_node_qos_clks; i++) {
@@ -667,15 +675,16 @@ static int msm_bus_dev_init_qos(struct device *dev, void *data)
 
 			if (node_dev->ap_owned &&
 				(node_dev->node_info->qos_params.mode) != -1) {
+				bool no_defer = false;
 
 				if (bus_node_info->fabdev->bypass_qos_prg)
 					goto exit_init_qos;
 
-				ret = msm_bus_enable_node_qos_clk(node_dev);
+				ret = msm_bus_enable_node_qos_clk(node_dev, &no_defer);
 				if (ret < 0) {
 					MSM_BUS_DBG("Can't Enable QoS clk %d\n",
 					node_dev->node_info->id);
-					node_dev->node_info->defer_qos = true;
+					node_dev->node_info->defer_qos = !no_defer;
 					goto exit_init_qos;
 				}
 
@@ -870,9 +879,9 @@ static int msm_bus_copy_node_info(struct msm_bus_node_device_type *pdata,
 				pdata_node_info->agg_params.num_aggports;
 	node_info->agg_params.num_util_levels =
 				pdata_node_info->agg_params.num_util_levels;
-	node_info->agg_params.util_levels = devm_kzalloc(bus_dev,
-			sizeof(struct node_util_levels_type) *
+	node_info->agg_params.util_levels = devm_kcalloc(bus_dev,
 			node_info->agg_params.num_util_levels,
+			sizeof(struct node_util_levels_type),
 			GFP_KERNEL);
 	if (!node_info->agg_params.util_levels) {
 		MSM_BUS_ERR("%s: Agg util level alloc failed\n", __func__);
@@ -884,9 +893,9 @@ static int msm_bus_copy_node_info(struct msm_bus_node_device_type *pdata,
 		sizeof(struct node_util_levels_type) *
 			pdata_node_info->agg_params.num_util_levels);
 
-	node_info->dev_connections = devm_kzalloc(bus_dev,
-			sizeof(struct device *) *
-				pdata_node_info->num_connections,
+	node_info->dev_connections = devm_kcalloc(bus_dev,
+			pdata_node_info->num_connections,
+			sizeof(struct device *),
 			GFP_KERNEL);
 	if (!node_info->dev_connections) {
 		MSM_BUS_ERR("%s:Bus dev connections alloc failed\n", __func__);
@@ -894,8 +903,8 @@ static int msm_bus_copy_node_info(struct msm_bus_node_device_type *pdata,
 		goto exit_copy_node_info;
 	}
 
-	node_info->connections = devm_kzalloc(bus_dev,
-			sizeof(int) * pdata_node_info->num_connections,
+	node_info->connections = devm_kcalloc(bus_dev,
+			pdata_node_info->num_connections, sizeof(int),
 			GFP_KERNEL);
 	if (!node_info->connections) {
 		MSM_BUS_ERR("%s:Bus connections alloc failed\n", __func__);
@@ -908,9 +917,8 @@ static int msm_bus_copy_node_info(struct msm_bus_node_device_type *pdata,
 		pdata_node_info->connections,
 		sizeof(int) * pdata_node_info->num_connections);
 
-	node_info->black_connections = devm_kzalloc(bus_dev,
-			sizeof(struct device *) *
-				pdata_node_info->num_blist,
+	node_info->black_connections = devm_kcalloc(bus_dev,
+			pdata_node_info->num_blist, sizeof(struct device *),
 			GFP_KERNEL);
 	if (!node_info->black_connections) {
 		MSM_BUS_ERR("%s: Bus black connections alloc failed\n",
@@ -921,8 +929,8 @@ static int msm_bus_copy_node_info(struct msm_bus_node_device_type *pdata,
 		goto exit_copy_node_info;
 	}
 
-	node_info->black_listed_connections = devm_kzalloc(bus_dev,
-			pdata_node_info->num_blist * sizeof(int),
+	node_info->black_listed_connections = devm_kcalloc(bus_dev,
+			pdata_node_info->num_blist, sizeof(int),
 			GFP_KERNEL);
 	if (!node_info->black_listed_connections) {
 		MSM_BUS_ERR("%s:Bus black list connections alloc failed\n",
@@ -938,8 +946,8 @@ static int msm_bus_copy_node_info(struct msm_bus_node_device_type *pdata,
 		pdata_node_info->black_listed_connections,
 		sizeof(int) * pdata_node_info->num_blist);
 
-	node_info->qport = devm_kzalloc(bus_dev,
-			sizeof(int) * pdata_node_info->num_qports,
+	node_info->qport = devm_kcalloc(bus_dev,
+			pdata_node_info->num_qports, sizeof(int),
 			GFP_KERNEL);
 	if (!node_info->qport) {
 		MSM_BUS_ERR("%s:Bus qport allocation failed\n", __func__);

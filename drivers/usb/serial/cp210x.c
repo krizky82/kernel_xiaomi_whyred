@@ -145,6 +145,7 @@ static const struct usb_device_id id_table[] = {
 	{ USB_DEVICE(0x10C4, 0x8977) },	/* CEL MeshWorks DevKit Device */
 	{ USB_DEVICE(0x10C4, 0x8998) }, /* KCF Technologies PRN */
 	{ USB_DEVICE(0x10C4, 0x89A4) }, /* CESINEL FTBC Flexible Thyristor Bridge Controller */
+	{ USB_DEVICE(0x10C4, 0x89FB) }, /* Qivicon ZigBee USB Radio Stick */
 	{ USB_DEVICE(0x10C4, 0x8A2A) }, /* HubZ dual ZigBee and Z-Wave dongle */
 	{ USB_DEVICE(0x10C4, 0x8A5E) }, /* CEL EM3588 ZigBee USB Stick Long Range */
 	{ USB_DEVICE(0x10C4, 0x8B34) }, /* Qivicon ZigBee USB Radio Stick */
@@ -397,7 +398,7 @@ static int cp210x_set_config(struct usb_serial_port *port, u8 request,
 	/* Number of integers required to contain the array */
 	length = (((size - 1) | 3) + 1) / 4;
 
-	buf = kmalloc(length * sizeof(__le32), GFP_KERNEL);
+	buf = kmalloc_array(length, sizeof(__le32), GFP_KERNEL);
 	if (!buf)
 		return -ENOMEM;
 
