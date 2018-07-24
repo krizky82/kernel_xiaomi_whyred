@@ -50,11 +50,7 @@
 
 #define KCONTROL_CODEC
 
-#ifndef CONFIG_SOUND_CONTROL_HAX_GPL
-static
-#endif
-
-unsigned int tas2557_codec_read(struct snd_soc_codec *pCodec,
+static unsigned int tas2557_codec_read(struct snd_soc_codec *pCodec,
 	unsigned int nRegister)
 {
 	struct tas2557_priv *pTAS2557 = snd_soc_codec_get_drvdata(pCodec);
@@ -74,15 +70,8 @@ unsigned int tas2557_codec_read(struct snd_soc_codec *pCodec,
 	return ret;
 }
 
-#ifdef CONFIG_SOUND_CONTROL_HAX_GPL
-EXPORT_SYMBOL(tas2557_codec_read);
-#endif
 
-#ifndef CONFIG_SOUND_CONTROL_HAX_GPL
-static
-#endif
-
- int tas2557_codec_write(struct snd_soc_codec *pCodec, unsigned int nRegister,
+static int tas2557_codec_write(struct snd_soc_codec *pCodec, unsigned int nRegister,
 	unsigned int nValue)
 {
 	struct tas2557_priv *pTAS2557 = snd_soc_codec_get_drvdata(pCodec);
@@ -95,10 +84,6 @@ static
 	mutex_unlock(&pTAS2557->codec_lock);
 	return ret;
 }
-
-#ifdef CONFIG_SOUND_CONTROL_HAX_GPL
-EXPORT_SYMBOL(tas2557_codec_write);
-#endif
 
 static int tas2557_codec_suspend(struct snd_soc_codec *pCodec)
 {
@@ -587,17 +572,6 @@ int tas2557_deregister_codec(struct tas2557_priv *pTAS2557)
 	snd_soc_unregister_codec(pTAS2557->dev);
 	return 0;
 }
-
-#ifdef CONFIG_SOUND_CONTROL_HAX_GPL
-struct snd_kcontrol_new *gpl_faux_snd_controls_ptr =
-		(struct snd_kcontrol_new *)tas2557_snd_controls;
-
-struct snd_soc_codec *fauxsound_codec_ptr;
-EXPORT_SYMBOL(fauxsound_codec_ptr);
- #endif	
-
-
-
 
 MODULE_AUTHOR("Texas Instruments Inc.");
 MODULE_DESCRIPTION("TAS2557 ALSA SOC Smart Amplifier driver");
