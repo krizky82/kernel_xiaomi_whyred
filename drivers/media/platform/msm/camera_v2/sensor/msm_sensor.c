@@ -304,9 +304,8 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 	if (s_ctrl->sensordata->vendor_id_info->vendor_id != vendorid) {
 		rc = -1;
 		return rc;
-	} 
-
-	if (have_vcmid == 1) {
+	} else {
+		if (have_vcmid == 1) {
 			if (s_ctrl->sensordata->vcm_id_info->vcm_id != vcmid) {
 				pr_err("%s:match vcmid if failed read vcm id: 0x%x expected id 0x%x:\n",
 				__func__, vcmid, s_ctrl->sensordata->vcm_id_info->vcm_id);
@@ -317,7 +316,7 @@ int msm_sensor_match_vendor_id(struct msm_sensor_ctrl_t *s_ctrl)
 				__func__, vcmid, s_ctrl->sensordata->vcm_id_info->vcm_id);
 			}
 		}
-	
+	}
 
 	pr_err("%s: read vendor id: 0x%x expected id 0x%x:\n",
 			__func__, vendorid, s_ctrl->sensordata->vendor_id_info->vendor_id);
