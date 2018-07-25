@@ -20,6 +20,7 @@
 #include <linux/ftrace.h>
 #include <linux/mm.h>
 #include <linux/msm_adreno_devfreq.h>
+#include <linux/state_notifier.h>
 #include <asm/cacheflush.h>
 #include <soc/qcom/scm.h>
 #include "governor.h"
@@ -385,28 +386,15 @@ static int tz_init(struct devfreq_msm_adreno_tz_data *priv,
 	return ret;
 }
 
-
-
-#ifdef CONFIG_ADRENO_IDLER
-extern int adreno_idler(struct devfreq_dev_status stats, struct devfreq *devfreq,
-		 unsigned long *freq);
-#endif
-extern  int devfreq_get_freq_level(struct devfreq *devfreq,
-	unsigned long freq)
-{
-	int lev;
-
-	for (lev = 0; lev < devfreq->profile->max_state; lev++)
-	if (freq == devfreq->profile->freq_table[lev])
-		return lev;
-
-	return -EINVAL;
-}
-
 #ifdef CONFIG_SIMPLE_GPU_ALGORITHM
 extern int simple_gpu_active;
 extern int simple_gpu_algorithm(int level, int *val,
 				struct devfreq_msm_adreno_tz_data *priv);
+#endif
+
+#ifdef CONFIG_ADRENO_IDLER
+extern int adreno_idler(struct devfreq_dev_status stats, struct devfreq *devfreq,
+		 unsigned long *freq);
 #endif
 
 static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
@@ -433,6 +421,15 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 	}
 
 	*freq = stats.current_frequency;
+
+	/*
+	 * Force to use & record as min freq when system has
+	 * entered pm-suspend or screen-off state.
+	 */
+	if (state_suspended) {
+		*freq = devfreq->profile->freq_table[devfreq->profile->max_state - 1];
+		return 0;
+	}
 
 #ifdef CONFIG_ADRENO_IDLER
 	if (adreno_idler(stats, devfreq, freq)) {
@@ -631,6 +628,7 @@ static int tz_suspend(struct devfreq *devfreq)
 
 	priv->bin.total_time = 0;
 	priv->bin.busy_time = 0;
+
 	return 0;
 }
 
