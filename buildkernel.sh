@@ -31,7 +31,7 @@ export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="krizky82"
 export KBUILD_BUILD_HOST="Ubuntu-WSL"
-export CROSS_COMPILE="/home/krizky/Kernel/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+export CROSS_COMPILE="/home/krizky/Kernel/Linaro/bin/aarch64-linux-gnu-"
 export KBUILD_COMPILER_STRING=$(/home/krizky/Kernel/Clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 
 echo "  Initializing build to compile Ver: $ZIP_NAME    "
@@ -54,7 +54,7 @@ make -j$(nproc --all) O=out \
                       ARCH=arm64 \
 		      CC="/home/krizky/Kernel/Clang/bin/clang" \
                       CLANG_TRIPLE=aarch64-linux-gnu- \
-                      CROSS_COMPILE="/home/krizky/Kernel/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
+                      CROSS_COMPILE="/home/krizky/Kernel/Linaro/bin/aarch64-linux-gnu-"
 
 # If the above was successful
 if [ -a $KERN_IMG ]; then
@@ -73,23 +73,22 @@ echo "       Making Flashable Zip       "
 
 cp -vr ${KERN_IMG} ${ANYKERNEL_DIR}/zImage  
  
-#Just incase the new kernel break the module, export new modules to AnyKernel2
+#Modules are now build inside the kernel, no need to export new modules to AnyKernel2
+#
+#rm -rf ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules
 
-rm -rf ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules
+#mkdir -p ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules
 
-mkdir -p ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules
-
-cp ${MODULE}block/test-iosched.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/test-iosched.ko
-cp ${MODULE}drivers/char/rdbg.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/rdbg.ko
-cp ${MODULE}drivers/media/platform/msm/dvb/adapter/mpq-adapter.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/mpq-adapter.ko
-cp ${MODULE}drivers/media/platform/msm/dvb/demux/mpq-dmx-hw-plugin.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/mpq-dmx-hw-plugin.ko
-cp ${MODULE}drivers/media/usb/gspca/gspca_main.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/gspca_main.ko
-cp ${MODULE}drivers/net/wireless/ath/wil6210/wil6210.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/wil6210.ko
-cp ${MODULE}drivers/platform/msm/msm_11ad/msm_11ad_proxy.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/msm_11ad_proxy.ko
-cp ${MODULE}drivers/scsi/ufs/ufs_test.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/ufs_test.ko
-cp ${MODULE}fs/exfat/exfat.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/exfat.ko
-cp ${MODULE}net/bridge/br_netfilter.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/br_netfilter.ko
-
+#cp ${MODULE}block/test-iosched.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/test-iosched.ko
+#cp ${MODULE}drivers/char/rdbg.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/rdbg.ko
+#cp ${MODULE}drivers/media/platform/msm/dvb/adapter/mpq-adapter.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/mpq-adapter.ko
+#cp ${MODULE}drivers/media/platform/msm/dvb/demux/mpq-dmx-hw-plugin.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/mpq-dmx-hw-plugin.ko
+#cp ${MODULE}drivers/media/usb/gspca/gspca_main.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/gspca_main.ko
+#cp ${MODULE}drivers/net/wireless/ath/wil6210/wil6210.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/wil6210.ko
+#cp ${MODULE}drivers/platform/msm/msm_11ad/msm_11ad_proxy.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/msm_11ad_proxy.ko
+#cp ${MODULE}drivers/scsi/ufs/ufs_test.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/ufs_test.ko
+#cp ${MODULE}fs/exfat/exfat.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/exfat.ko
+#cp ${MODULE}net/bridge/br_netfilter.ko ${ANYKERNEL_DIR}/modules/system/vendor/lib/modules/br_netfilter.ko
    cd ${ANYKERNEL_DIR}
 
    rm *.zip 
