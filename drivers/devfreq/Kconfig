@@ -125,6 +125,11 @@ config ADRENO_IDLER
 	  wasted power coming from stock Adreno TZ while
 	  maintaining high-performance.
 
+config ADRENO_BOOST
+	tristate "MSM Adreno boost parameters"
+	depends on DEVFREQ_GOV_QCOM_ADRENO_TZ
+	default n
+
 config QCOMCCI_HWMON
 	tristate "QCOM CCI Cache monitor hardware"
 	depends on ARCH_QCOM

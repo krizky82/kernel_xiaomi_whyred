@@ -20,7 +20,6 @@
 #include <linux/ftrace.h>
 #include <linux/mm.h>
 #include <linux/msm_adreno_devfreq.h>
-#include <linux/state_notifier.h>
 #include <asm/cacheflush.h>
 #include <soc/qcom/scm.h>
 #include "governor.h"
@@ -60,9 +59,8 @@ static DEFINE_SPINLOCK(suspend_lock);
 #define TAG "msm_adreno_tz: "
 
 
-#if 1
-static unsigned int adrenoboost = 1;
-
+#ifdef CONFIG_ADRENO_BOOST
+static unsigned int adrenoboost = 0;
 #endif
 
 static u64 suspend_time;
@@ -96,8 +94,7 @@ u64 suspend_time_ms(void)
 }
 
 
-#if 1
-
+#ifdef CONFIG_ADRENO_BOOST
 static ssize_t adrenoboost_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -171,7 +168,7 @@ static ssize_t suspend_time_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%llu\n", time_diff);
 }
 
-#if 1
+#ifdef CONFIG_ADRENO_BOOST
 static DEVICE_ATTR(adrenoboost, 0644,
 		adrenoboost_show, adrenoboost_save);
 #endif
@@ -186,9 +183,8 @@ static DEVICE_ATTR(suspend_time, 0444,
 static const struct device_attribute *adreno_tz_attr_list[] = {
 		&dev_attr_gpu_load,
 		&dev_attr_suspend_time,
-#if 1
+#ifdef CONFIG_ADRENO_BOOST
 		&dev_attr_adrenoboost,
-
 #endif
 
 		NULL
@@ -422,15 +418,6 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 
 	*freq = stats.current_frequency;
 
-	/*
-	 * Force to use & record as min freq when system has
-	 * entered pm-suspend or screen-off state.
-	 */
-	if (state_suspended) {
-		*freq = devfreq->profile->freq_table[devfreq->profile->max_state - 1];
-		return 0;
-	}
-
 #ifdef CONFIG_ADRENO_IDLER
 	if (adreno_idler(stats, devfreq, freq)) {
 		/* adreno_idler has asked to bail out now */
@@ -439,7 +426,7 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 #endif
 
 	priv->bin.total_time += stats.total_time;
-#if 1
+#ifdef CONFIG_ADRENO_BOOST
 	// scale busy time up based on adrenoboost parameter, only if MIN_BUSY exceeded...
 	if ((unsigned int)(priv->bin.busy_time + stats.busy_time) >= MIN_BUSY) {
 		priv->bin.busy_time += stats.busy_time * (1 + (adrenoboost*3)/2);
@@ -628,7 +615,6 @@ static int tz_suspend(struct devfreq *devfreq)
 
 	priv->bin.total_time = 0;
 	priv->bin.busy_time = 0;
-
 	return 0;
 }
 
