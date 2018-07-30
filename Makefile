@@ -373,7 +373,14 @@ CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage -fno-tree-loop-im
 
 # Optimization flags specific to clang
 CLANG_FLAGS :=	-mcpu=kryo \
-		-funsafe-math-optimizations
+		-funsafe-math-optimizations \
+		-mllvm -polly \
+		-mllvm -polly-run-dce \
+		-mllvm -polly-run-inliner \
+		-mllvm -polly-opt-fusion=max \
+		-mllvm -polly-ast-use-context \
+		-mllvm -polly-detect-keep-going \
+		-mllvm -polly-vectorizer=stripmine
 
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE    := \

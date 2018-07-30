@@ -32,7 +32,7 @@ export SUBARCH=arm64
 export KBUILD_BUILD_USER="krizky82"
 export KBUILD_BUILD_HOST="Ubuntu-WSL"
 export CROSS_COMPILE="/home/krizky/Kernel/Linaro/bin/aarch64-linux-gnu-"
-export KBUILD_COMPILER_STRING=$(/home/krizky/Kernel/Clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+export KBUILD_COMPILER_STRING=$(/home/krizky/dtc/out/7.0/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 
 echo "  Initializing build to compile Ver: $ZIP_NAME    "
 
@@ -52,7 +52,7 @@ echo "          Cooking Kernel....        "
 
 make -j$(nproc --all) O=out \
                       ARCH=arm64 \
-		      CC="/home/krizky/Kernel/Clang/bin/clang" \
+		      CC="/home/krizky/dtc/out/7.0/bin/clang" \
                       CLANG_TRIPLE=aarch64-linux-gnu- \
                       CROSS_COMPILE="/home/krizky/Kernel/Linaro/bin/aarch64-linux-gnu-"
 
