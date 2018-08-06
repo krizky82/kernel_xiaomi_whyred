@@ -62,6 +62,8 @@
 #define CREATE_TRACE_POINTS
 #include "trace/lowmemorykiller.h"
 
+extern int extra_free_kbytes;
+
 static uint32_t lowmem_debug_level = 1;
 static short lowmem_adj[6] = {
 	0,
@@ -156,6 +158,7 @@ static int lmk_vmpressure_notifier(struct notifier_block *nb,
 	if (pressure >= 95) {
 		other_file = global_page_state(NR_FILE_PAGES) + zcache_pages() -
 			global_page_state(NR_SHMEM) -
+			global_page_state(NR_UNEVICTABLE) -
 			total_swapcache_pages();
 		other_free = global_page_state(NR_FREE_PAGES);
 
@@ -169,6 +172,7 @@ static int lmk_vmpressure_notifier(struct notifier_block *nb,
 
 		other_file = global_page_state(NR_FILE_PAGES) + zcache_pages() -
 			global_page_state(NR_SHMEM) -
+			global_page_state(NR_UNEVICTABLE) -
 			total_swapcache_pages();
 
 		other_free = global_page_state(NR_FREE_PAGES);
@@ -425,7 +429,7 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 
 	other_free = global_page_state(NR_FREE_PAGES);
 
-	if (global_page_state(NR_SHMEM) + total_swapcache_pages() <
+	if (global_page_state(NR_SHMEM) + global_page_state(NR_UNEVICTABLE) + total_swapcache_pages() <
 		global_page_state(NR_FILE_PAGES) + zcache_pages())
 		other_file = global_page_state(NR_FILE_PAGES) + zcache_pages() -
 						global_page_state(NR_SHMEM) -
@@ -441,7 +445,8 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 	if (lowmem_minfree_size < array_size)
 		array_size = lowmem_minfree_size;
 	for (i = 0; i < array_size; i++) {
-		minfree = lowmem_minfree[i];
+		minfree = lowmem_minfree[i] +
+			  ((extra_free_kbytes * 1024) / PAGE_SIZE);
 		if (other_free < minfree && other_file < minfree) {
 			min_score_adj = lowmem_adj[i];
 			break;
