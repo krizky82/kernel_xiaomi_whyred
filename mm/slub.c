@@ -468,15 +468,15 @@ static inline void *restore_red_left(struct kmem_cache *s, void *p)
  * Debug settings:
  */
 #if defined(CONFIG_SLUB_DEBUG_ON)
-static int slub_debug = DEBUG_DEFAULT_FLAGS;
+static int slub_debug __ro_after_init = DEBUG_DEFAULT_FLAGS;
 #elif defined(CONFIG_KASAN)
-static int slub_debug = SLAB_STORE_USER;
+static int slub_debug __ro_after_init = SLAB_STORE_USER;
 #else
-static int slub_debug;
+static int slub_debug __ro_after_init;
 #endif
 
-static char *slub_debug_slabs;
-static int disable_higher_order_debug;
+static char *slub_debug_slabs __ro_after_init;
+static int disable_higher_order_debug __ro_after_init;
 
 /*
  * slub is about to manipulate internal object metadata.  This memory lies
@@ -3038,9 +3038,9 @@ EXPORT_SYMBOL(kmem_cache_alloc_bulk);
  * and increases the number of allocations possible without having to
  * take the list_lock.
  */
-static int slub_min_order;
-static int slub_max_order = PAGE_ALLOC_COSTLY_ORDER;
-static int slub_min_objects;
+static int slub_min_order __ro_after_init;
+static int slub_max_order __ro_after_init = PAGE_ALLOC_COSTLY_ORDER;
+static int slub_min_objects __ro_after_init;
 
 /*
  * Calculate the order of allocation given an slab object size.
