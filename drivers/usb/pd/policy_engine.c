@@ -382,6 +382,14 @@ struct usbpd {
 
 static LIST_HEAD(_usbpd);	/* useful for debugging */
 
+static void usbpd_device_release(struct device *dev)
+{
+	/*
+	 * Empty function to silence WARN_ON() upon device_unregister on a
+	 * device with no release() function.
+	 */
+}
+
 static const unsigned int usbpd_extcon_cable[] = {
 	EXTCON_USB,
 	EXTCON_USB_HOST,
@@ -3245,6 +3253,7 @@ struct usbpd *usbpd_create(struct device *parent)
 	device_initialize(&pd->dev);
 	pd->dev.class = &usbpd_class;
 	pd->dev.parent = parent;
+	pd->dev.release = usbpd_device_release;
 	dev_set_drvdata(&pd->dev, pd);
 
 	ret = dev_set_name(&pd->dev, "usbpd%d", num_pd_instances++);
@@ -3256,8 +3265,10 @@ struct usbpd *usbpd_create(struct device *parent)
 		goto free_pd;
 
 	ret = device_add(&pd->dev);
-	if (ret)
+	if (ret) {
+		kfree_const(pd->dev.kobj.name);
 		goto free_pd;
+	}
 
 	pd->wq = alloc_ordered_workqueue("usbpd_wq", WQ_FREEZABLE | WQ_HIGHPRI);
 	if (!pd->wq) {
@@ -3399,7 +3410,7 @@ put_psy:
 destroy_wq:
 	destroy_workqueue(pd->wq);
 del_pd:
-	device_del(&pd->dev);
+	device_unregister(&pd->dev);
 free_pd:
 	num_pd_instances--;
 	kfree(pd);
@@ -3420,7 +3431,7 @@ void usbpd_destroy(struct usbpd *pd)
 	power_supply_unreg_notifier(&pd->psy_nb);
 	power_supply_put(pd->usb_psy);
 	destroy_workqueue(pd->wq);
-	device_del(&pd->dev);
+	device_unregister(&pd->dev);
 	kfree(pd);
 }
 EXPORT_SYMBOL(usbpd_destroy);
