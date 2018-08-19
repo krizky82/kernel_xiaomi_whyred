@@ -19,9 +19,9 @@ MODULE=$KERNEL_DIR/out/
 
 BUILD_START=$(date +"%s")
 #ANYKERNEL_DIR=/root/AnyKernel2
-ANYKERNEL_DIR=/home/krizky/Kernel/AnyKernel2
+ANYKERNEL_DIR=~/Kernel/AnyKernel2
 #EXPORT_DIR=/root/flashablezips
-EXPORT_DIR=/home/krizky/Kernel/flashablezips
+EXPORT_DIR=~/Kernel/flashablezips
 
 
 # Make Changes to this before release
@@ -31,10 +31,10 @@ ZIP_NAME="krizky-1"
 export ARCH=arm64
 export SUBARCH=arm64
 export KBUILD_BUILD_USER="krizky82"
-export KBUILD_BUILD_HOST="Ubuntu-WSL"
-export CROSS_COMPILE="/home/krizky/Kernel/Linaro/bin/aarch64-linux-gnu-"
+export KBUILD_BUILD_HOST="Ubuntu 18.04.1 LTS"
+export CROSS_COMPILE="~/Kernel/Linaro/bin/aarch64-linux-gnu-"
 export COMPILER_NAME="DragonTC 7.0"
-# export KBUILD_COMPILER_STRING=$(/home/krizky/dtc/out/7.0/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+# export KBUILD_COMPILER_STRING=$(~/Kernel/dtc/out/7.0/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
 
 echo "  Initializing build to compile Ver: $ZIP_NAME    "
 
@@ -54,9 +54,9 @@ echo "          Cooking Kernel....        "
 
 make -j$(nproc --all) O=out \
                       ARCH=arm64 \
-		      CC="/home/krizky/dtc/out/7.0/bin/clang" \
+		      CC="~/Kernel/dtc/out/7.0/bin/clang" \
                       CLANG_TRIPLE=aarch64-linux-gnu- \
-                      CROSS_COMPILE="/home/krizky/Kernel/Linaro/bin/aarch64-linux-gnu-"
+                      CROSS_COMPILE="~/Kernel/Linaro/bin/aarch64-linux-gnu-"
 
 # If the above was successful
 if [ -a $KERN_IMG ]; then
