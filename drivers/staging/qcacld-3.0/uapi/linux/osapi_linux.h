@@ -91,7 +91,7 @@
 #define A_MSLEEP(msecs)							   \
 	{									   \
 		set_current_state(TASK_INTERRUPTIBLE);				       \
-		schedule_timeout((HZ * (msecs)) / 1000);			       \
+		schedule_timeout((msecs_to_jiffies(1000) * (msecs)) / 1000);			       \
 		set_current_state(TASK_RUNNING);				       \
 	}
 
